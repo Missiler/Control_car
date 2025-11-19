@@ -39,7 +39,7 @@ class CmdVelSubscriber(Node):
         time.sleep(1)
         
         
-        pulse_ms = 1.0 + (-180/ 180.0) * 1.0
+        pulse_ms = 1.0 + (90/ 180.0) * 1.0
         duty = (pulse_ms / 20.0) * 100
         lgpio.tx_pwm(chip,PIN_SERVO,freq,duty)
         self.get_logger().info(f'angle: {duty}')
