@@ -9,7 +9,7 @@ import lgpio
 
 PIN_SERVO = 18
 chip = lgpio.gpiochip_open(4)
-freq = 1e3
+freq = 50
 
 lgpio.gpio_claim_output(chip,PIN_SERVO)
 
@@ -30,7 +30,21 @@ class CmdVelSubscriber(Node):
         lin = msg.linear
         ang = msg.angular
         
-        lgpio.tx_pwm(chip,PIN_SERVO,freq,50)
+    
+        pulse_ms = 1.0 + (45 / 180.0) * 1.0
+        duty = (pulse_ms / 20.0) * 100
+        lgpio.tx_pwm(chip,PIN_SERVO,freq,duty)
+        self.get_logger().info(f'angle: {duty}')
+        
+        time.sleep(1)
+        
+        
+        pulse_ms = 1.0 + (-45 / 180.0) * 1.0
+        duty = (pulse_ms / 20.0) * 100
+        lgpio.tx_pwm(chip,PIN_SERVO,freq,duty)
+        self.get_logger().info(f'angle: {duty}')
+        time.sleep(1)
+        
 
         self.get_logger().info(
             f"Linear: x={lin.x:.2f}, y={lin.y:.2f}, z={lin.z:.2f} | "
