@@ -12,7 +12,6 @@ chip = lgpio.gpiochip_open(4)
 freq = 1e3
 
 lgpio.gpio_claim_output(chip,PIN_SERVO)
-lgpio.tx_pwm(chip,PIN_SERVO,freq,50)
 
 class CmdVelSubscriber(Node):
     def __init__(self):
@@ -30,6 +29,14 @@ class CmdVelSubscriber(Node):
     def listener_callback(self, msg: Twist):
         lin = msg.linear
         ang = msg.angular
+        
+        lgpio.tx_pwm(chip,PIN_SERVO,freq,0)
+        time.sleep(5)
+        lgpio.tx_pwm(chip,PIN_SERVO,freq,50)
+        time.sleep(5)
+        lgpio.tx_pwm(chip,PIN_SERVO,freq,100)
+        time.sleep(5)
+        
 
         self.get_logger().info(
             f"Linear: x={lin.x:.2f}, y={lin.y:.2f}, z={lin.z:.2f} | "
@@ -38,7 +45,7 @@ class CmdVelSubscriber(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = CmdVelSubscriber()
+    node = CmdVelSubscriber ()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
