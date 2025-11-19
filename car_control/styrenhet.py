@@ -30,13 +30,7 @@ class CmdVelSubscriber(Node):
         lin = msg.linear
         ang = msg.angular
         
-        lgpio.tx_pwm(chip,PIN_SERVO,freq,0)
-        time.sleep(5)
         lgpio.tx_pwm(chip,PIN_SERVO,freq,50)
-        time.sleep(5)
-        lgpio.tx_pwm(chip,PIN_SERVO,freq,100)
-        time.sleep(5)
-        
 
         self.get_logger().info(
             f"Linear: x={lin.x:.2f}, y={lin.y:.2f}, z={lin.z:.2f} | "
