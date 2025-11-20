@@ -29,6 +29,7 @@ class CmdVelSubscriber(Node):
         self.subscription
 
     def listener_callback(self, msg: Twist):
+        global calibrated
         lin = msg.linear
         ang = msg.angular
         
