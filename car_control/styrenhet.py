@@ -63,15 +63,15 @@ class CmdVelSubscriber(Node):
         
         #Has to be calibrated first.
         if calibrated == False:
-            lgpio.tx_pulse(4,PIN_ESC, int(esc_calib_max), int(period_esc-esc_calib_max))
+            lgpio.tx_pulse(chip,PIN_ESC, int(esc_calib_max), int(period_esc-esc_calib_max))
             time.sleep(2)
-            lgpio.tx_pulse(4,PIN_ESC,int(esc_calib_min), int(period_esc-esc_calib_min))   
+            lgpio.tx_pulse(chip,PIN_ESC,int(esc_calib_min), int(period_esc-esc_calib_min))   
             time.sleep(2)
-            lgpio.tx_pulse(4,PIN_ESC, int((esc_calib_max - esc_calib_min)-2), int(period_esc-((esc_calib_max - esc_calib_min)-2)))
+            lgpio.tx_pulse(chip,PIN_ESC, int((esc_calib_max - esc_calib_min)-2), int(period_esc-((esc_calib_max - esc_calib_min)-2)))
             calibrated = True
         
         esc_duty = int(round(map_range(msg.linear.x, 0, 0.5, esc_max, esc_min)))
-        lgpio.tx_pulse(4,PIN_ESC, esc_duty, int(period_esc-esc_duty))
+        lgpio.tx_pulse(chip,PIN_ESC, esc_duty, int(period_esc-esc_duty))
         
         
         self.get_logger().info(
