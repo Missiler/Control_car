@@ -30,19 +30,16 @@ class CmdVelSubscriber(Node):
         lin = msg.linear
         ang = msg.angular
         
-    
-        pulse_ms = 1.0 + (180 / 180.0) * 1.0
-        duty = (pulse_ms / 20.0)
-        lgpio.tx_pwm(chip,PIN_SERVO,freq,duty)
-        self.get_logger().info(f'angle: {duty}')
+        servo_max = 1750
+        servo_min = 1250
+        servo_center = (servo_max + servo_min)/2
         
-        time.sleep(1)
+        servo_duty = map_range(msg.angular, -0.56, 0.56, servo_min, servo_max)
         
+
+        lgpio.tx_pwm(chip,PIN_SERVO,freq,servo_duty)
+        self.get_logger().info(f'angle: {servo_duty}')
         
-        pulse_ms = 1.0 + (10/ 180.0) * 1.0
-        duty = (pulse_ms / 20.0)
-        lgpio.tx_pwm(chip,PIN_SERVO,freq,duty)
-        self.get_logger().info(f'angle: {duty}')
         time.sleep(1)
         
 
@@ -50,6 +47,10 @@ class CmdVelSubscriber(Node):
             f"Linear: x={lin.x:.2f}, y={lin.y:.2f}, z={lin.z:.2f} | "
             f"Angular: x={ang.x:.2f}, y={ang.y:.2f}, z={ang.z:.2f}"
         )
+
+def map_range(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
 
 def main(args=None):
     rclpy.init(args=args)
