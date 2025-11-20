@@ -8,7 +8,7 @@ import lgpio
 #Vi testar börja med lgpio
 
 PIN_SERVO = 18
-PIN_ESC = 19
+PIN_ESC = 13
 chip = lgpio.gpiochip_open(4)
 f_servo = 50
 calibrated = False
