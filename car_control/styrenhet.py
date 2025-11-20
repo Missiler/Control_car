@@ -68,16 +68,12 @@ class CmdVelSubscriber(Node):
         
         #Has to be calibrated first.
         if calibrated == False:
-            # 1. Max throttle (full range)
-            lgpio.gpio_pwm(chip, PIN_ESC, duty_max, 50)
+            lgpio.tx_pwm(chip,PIN_ESC,50,duty_max)
             time.sleep(2)
-                    
-            lgpio.gpio_pwm(chip, PIN_ESC, duty_min, 50)
+            lgpio.tx_pwm(chip,PIN_ESC,50,duty_min)
             time.sleep(2)
-            
-            lgpio.gpio_pwm(chip, PIN_ESC, duty_mid, 50)
-            time.sleep(1)   
-            
+            lgpio.tx_pwm(chip, PIN_ESC, 50, duty_mid)
+            time.sleep(2)
             calibrated = True
         
         esc_duty = int(round(map_range(msg.linear.x, 0, 1, 5, 10)))
