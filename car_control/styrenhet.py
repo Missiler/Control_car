@@ -34,7 +34,7 @@ class CmdVelSubscriber(Node):
         
         servo_max = 2000
         servo_min = 1000
-        period_servo = 1000000/(f_servo) #(50hz)
+        period_servo = int(1000000/(f_servo)) #(50hz)
         
         esc_max = 1600
         esc_min = 1400
