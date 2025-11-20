@@ -4,22 +4,20 @@ from geometry_msgs.msg import Twist
 import lgpio
 import time
 
-# === GPIO Setup ===
-PIN_SERVO = 18   # PWM0 output
-PIN_ESC   = 13   # PWM1 output
+#GPIO Setup
+PIN_SERVO = 18  
+PIN_ESC   = 13   
 
-FREQ = 50        # 50Hz for both servo and ESC
-PERIOD_US = 20000  # 20ms
+FREQ = 50        
+PERIOD_US = 20000  
 
 
 class CmdVelSubscriber(Node):
     def __init__(self):
         super().__init__('cmd_vel_subscriber')
 
-        # Open main GPIO chip on Raspberry Pi 5 (ALWAYS gpiochip4)
         self.chip = lgpio.gpiochip_open(4)
 
-        # Claim outputs
         lgpio.gpio_claim_output(self.chip, PIN_SERVO)
         lgpio.gpio_claim_output(self.chip, PIN_ESC)
 
@@ -56,11 +54,11 @@ class CmdVelSubscriber(Node):
         servo_us = self.map_range(angle, -0.56, 0.56, 1000, 2000)
         servo_duty = servo_us / PERIOD_US * 100
 
-        lgpio.tx_pwm(self.chip, PIN_SERVO, FREQ, servo_duty)
+        lgpio.tx_pwm(self.chip, PIN_SERVO, FREQ, -servo_duty)
 
         #ESC
         throttle = msg.linear.x  # 0 → 1
-        esc_us = int(self.map_range(throttle, 0, 1, 1500, 1600))
+        esc_us = int(self.map_range(throttle, 0, 1, 1400, 1600))
         esc_duty = esc_us / PERIOD_US * 100
 
         lgpio.tx_pwm(self.chip, PIN_ESC, FREQ, esc_duty)
@@ -68,7 +66,7 @@ class CmdVelSubscriber(Node):
     def map_range(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-
+#0.25 är rakt fram
 
 def main(args=None):
     rclpy.init(args=args)
