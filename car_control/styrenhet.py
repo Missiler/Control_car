@@ -8,7 +8,7 @@ import lgpio
 #Vi testar börja med lgpio
 
 PIN_SERVO = 18
-PIN_ESC = 15
+PIN_ESC = 19
 chip = lgpio.gpiochip_open(4)
 f_servo = 50
 calibrated = False
@@ -37,10 +37,15 @@ class CmdVelSubscriber(Node):
         servo_min = 1000
         period_servo = int(1000000/(f_servo)) #(50hz)
         
-        esc_max = 1600
-        esc_min = 1400
+        esc_max = 2000
+        esc_min = 1000
+        esc_neutral = 1500
         esc_calib_max = 2000
         esc_calib_min = 1000
+        
+        duty_max = (esc_calib_max / 20000) * 100   # 2000 us → 10%
+        duty_min = (esc_calib_min / 20000) * 100   # 1000 us → 5%
+        duty_mid = (esc_neutral    / 20000) * 100   # 1500 us → 7.5%
         
         f_esc = 50
         period_esc = int(1000000/f_esc)
@@ -63,12 +68,16 @@ class CmdVelSubscriber(Node):
         
         #Has to be calibrated first.
         if calibrated == False:
-            lgpio.tx_pwm(chip,PIN_ESC,50,10)
+            # 1. Max throttle (full range)
+            lgpio.gpio_pwm(chip, PIN_ESC, duty_max, 50)
             time.sleep(2)
-            lgpio.tx_pwm(chip,PIN_ESC,50,5)
+                    
+            lgpio.gpio_pwm(chip, PIN_ESC, duty_min, 50)
             time.sleep(2)
-            lgpio.tx_pwm(chip, PIN_ESC, 50, 7.5)
-            time.sleep(2)
+            
+            lgpio.gpio_pwm(chip, PIN_ESC, duty_mid, 50)
+            time.sleep(1)   
+            
             calibrated = True
         
         esc_duty = int(round(map_range(msg.linear.x, 0, 1, 5, 10)))
