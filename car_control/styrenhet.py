@@ -8,8 +8,10 @@ import lgpio
 #Vi testar börja med lgpio
 
 PIN_SERVO = 18
+PIN_ESC = 15
 chip = lgpio.gpiochip_open(4)
-fs = 50
+f_servo = 50
+calibrated = False
 
 lgpio.gpio_claim_output(chip,PIN_SERVO)
 
@@ -32,16 +34,45 @@ class CmdVelSubscriber(Node):
         
         servo_max = 2000
         servo_min = 1000
-        period = 1/fs #(50hz)
+        period_servo = 1/f_servo #(50hz)
+        
+        esc_max = 1600
+        esc_min = 1400
+        esc_calib_max = 2000
+        esc_calib_min = 1000
+        
+        f_esc = 50
+        period_esc = 1/f_esc
+        
         #Servo-----------------
         #The angle is given by the pulse width of the period. For our case, it is 50Hz.
         currentAngle = round(map_range(msg.angular.z, -0.56, 0.56, -45, 45))
         
+        #-45 --> Turn Left
+        #+45 --> Turn Right
+        
         servo_duty = round(map_range(currentAngle, -45, 45, servo_min, servo_max))
 
-        lgpio.tx_pulse(chip,PIN_SERVO,servo_duty, period-servo_duty)
+        lgpio.tx_pulse(chip,PIN_SERVO,servo_duty, period_servo-servo_duty)
         self.get_logger().info(f'angle: {servo_duty}')
         #--------------------------------------------------------
+        
+        #ESC----------------
+        #Works just like a servo-motor.
+        
+        #Has to be calibrated first.
+        if calibrated == False:
+            lgpio.tx_pwm(4, PIN_ESC, f_esc,100)
+            time.sleep(2)
+            lgpio.tx_pwm(4, PIN_ESC, f_esc,0)    
+            time.sleep(2)
+            lgpio.tx_pwm(4, PIN_ESC, f_esc, 50)
+            calibrated = True
+        
+        esc_duty = round(map_range(msg.linear.x, 0, 0.5, esc_max, esc_min))
+        lgpio.tx_pulse(4,PIN_ESC, esc_duty, period_esc-esc_duty)
+        
+        
         self.get_logger().info(
             f"Linear: x={lin.x:.2f}, y={lin.y:.2f}, z={lin.z:.2f} | "
             f"Angular: x={ang.x:.2f}, y={ang.y:.2f}, z={ang.z:.2f}"
