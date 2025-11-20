@@ -34,7 +34,7 @@ class CmdVelSubscriber(Node):
         
         servo_max = 2000
         servo_min = 1000
-        period_servo = 1/f_servo #(50hz)
+        period_servo = 1000000/(f_servo) #(50hz)
         
         esc_max = 1600
         esc_min = 1400
@@ -42,7 +42,7 @@ class CmdVelSubscriber(Node):
         esc_calib_min = 1000
         
         f_esc = 50
-        period_esc = 1/f_esc
+        period_esc = int(1000000/f_esc)
         
         #Servo-----------------
         #The angle is given by the pulse width of the period. For our case, it is 50Hz.
