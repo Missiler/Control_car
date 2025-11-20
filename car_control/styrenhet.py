@@ -54,7 +54,7 @@ class CmdVelSubscriber(Node):
         global calibrated
         lin = msg.linear
         ang = msg.angular
-        
+        '''
         servo_max = 2000
         servo_min = 1000
         period_servo = int(1000000/(f_servo)) #(50hz)
@@ -72,7 +72,7 @@ class CmdVelSubscriber(Node):
         self.get_logger().info(f'angle: {servo_duty}')
         #--------------------------------------------------------
         
-        
+        '''
         #ESC--------------
         lgpio.tx_pwm(chip, PIN_ESC, 50, 10)
         time.sleep(1)
