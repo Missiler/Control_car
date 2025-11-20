@@ -51,10 +51,10 @@ class CmdVelSubscriber(Node):
         
         #Servo
         angle = msg.angular.z
-        servo_us = self.map_range(angle, -0.56, 0.56, 1000, 2000)
+        servo_us = self.map_range(-angle, -0.56, 0.56, 1000, 2000)
         servo_duty = servo_us / PERIOD_US * 100
 
-        lgpio.tx_pwm(self.chip, PIN_SERVO, FREQ, -servo_duty)
+        lgpio.tx_pwm(self.chip, PIN_SERVO, FREQ, servo_duty)
 
         #ESC
         throttle = msg.linear.x  # 0 → 1
