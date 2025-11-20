@@ -34,18 +34,12 @@ class CmdVelSubscriber(Node):
         servo_min = 1000
         period = 20000 #(50hz)
         
-        servo_duty1 = round(map_range(1, -1, 1, servo_min, servo_max))
-        servo_duty2 = round(map_range(-1, -1, 1, servo_min, servo_max))
+        currentAngle = round(map_range(msg.angular.z, -0.56, 0.56, -45, 45))
+        
+        servo_duty1 = round(map_range(currentAngle, -45, 45, servo_min, servo_max))
 
         lgpio.tx_pulse(chip,PIN_SERVO,servo_duty1, period-servo_duty1)
         self.get_logger().info(f'angle: {servo_duty1}')
-        
-        time.sleep(1)
-
-        lgpio.tx_pulse(chip,PIN_SERVO,servo_duty2,period-servo_duty2)
-        self.get_logger().info(f'angle: {servo_duty2}')
-        
-        time.sleep(1)
 
         self.get_logger().info(
             f"Linear: x={lin.x:.2f}, y={lin.y:.2f}, z={lin.z:.2f} | "
