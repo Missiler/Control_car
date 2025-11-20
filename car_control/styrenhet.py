@@ -70,7 +70,7 @@ class CmdVelSubscriber(Node):
             calibrated = True
         
         esc_duty = int(round(map_range(msg.linear.x, 0, 0.5, esc_max, esc_min)))
-        lgpio.tx_pulse(4,PIN_ESC, esc_duty, period_esc-esc_duty)
+        lgpio.tx_pulse(4,PIN_ESC, esc_duty, int(period_esc-esc_duty))
         
         
         self.get_logger().info(
