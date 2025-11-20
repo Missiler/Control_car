@@ -37,12 +37,12 @@ class CmdVelSubscriber(Node):
         servo_duty1 = map_range(1, -1, 1, servo_min, servo_max)
         servo_duty2 = map_range(-1, -1, 1, servo_min, servo_max)
 
-        lgpio.tx_pulse(chip,PIN_SERVO,freq,servo_duty1, period-servo_duty1)
+        lgpio.tx_pulse(chip,PIN_SERVO,servo_duty1, period-servo_duty1)
         self.get_logger().info(f'angle: {servo_duty1}')
         
         time.sleep(1)
 
-        lgpio.tx_pulse(chip,PIN_SERVO,freq,servo_duty2,period-servo_duty2)
+        lgpio.tx_pulse(chip,PIN_SERVO,servo_duty2,period-servo_duty2)
         self.get_logger().info(f'angle: {servo_duty2}')
         
         time.sleep(1)
