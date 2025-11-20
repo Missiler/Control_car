@@ -23,16 +23,11 @@ class CmdVelSubscriber(Node):
         lgpio.gpio_claim_output(self.chip, PIN_SERVO)
         lgpio.gpio_claim_output(self.chip, PIN_ESC)
 
-        # Start stable PWM at neutral positions
-        # Servo neutral: 1500 us
-        # ESC neutral (armed state): 1500 us
         lgpio.tx_pwm(self.chip, PIN_SERVO, FREQ, 7.5)  # 7.5% = 1500us
         lgpio.tx_pwm(self.chip, PIN_ESC,   FREQ, 7.5)
 
-        # Calibrate ESC once
         self.calibrate_esc()
 
-        # Subscribe
         self.subscription = self.create_subscription(
             Twist, 'cmd_vel', self.listener_callback, 10
         )
@@ -40,40 +35,39 @@ class CmdVelSubscriber(Node):
         self.get_logger().info("PWM initialized; servo+ESC ready")
 
     def calibrate_esc(self):
+        
         self.get_logger().info("Calibrating ESC...")
-
-        # Full throttle (2000 us = 10%)
+        
+        #Calibrates with max and min value
         lgpio.tx_pwm(self.chip, PIN_ESC, FREQ, 10)
         time.sleep(2)
-
-        # Zero throttle (1000 us = 5%)
         lgpio.tx_pwm(self.chip, PIN_ESC, FREQ, 5)
         time.sleep(2)
-
-        # Neutral throttle (1500 us = 7.5%)
         lgpio.tx_pwm(self.chip, PIN_ESC, FREQ, 7.5)
         time.sleep(2)
 
         self.get_logger().info("ESC calibrated and armed.")
+        
 
     def listener_callback(self, msg: Twist):
-        # === Servo (steering) ===
+        
+        #Servo
         angle = msg.angular.z
         servo_us = self.map_range(angle, -0.56, 0.56, 1000, 2000)
         servo_duty = servo_us / PERIOD_US * 100
 
-        # Send servo pulse
         lgpio.tx_pwm(self.chip, PIN_SERVO, FREQ, servo_duty)
 
-        # === ESC (throttle) ===
+        #ESC
         throttle = msg.linear.x  # 0 → 1
-        esc_us = self.map_range(throttle, 0, 1, 1000, 2000)
+        esc_us = int(self.map_range(throttle, 0, 1, 1500, 1600))
         esc_duty = esc_us / PERIOD_US * 100
 
         lgpio.tx_pwm(self.chip, PIN_ESC, FREQ, esc_duty)
 
-    def map_range(self, x, a, b, c, d):
-        return (x - a) * (d - c) / (b - a) + c
+    def map_range(self, x, in_min, in_max, out_min, out_max):
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
 
 
 def main(args=None):
