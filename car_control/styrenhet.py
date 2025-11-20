@@ -63,15 +63,15 @@ class CmdVelSubscriber(Node):
         
         #Has to be calibrated first.
         if calibrated == False:
-            lgpio.tx_pwm(chip,PIN_ESC,50,100)
+            lgpio.tx_pwm(chip,PIN_ESC,50,10)
             time.sleep(2)
-            lgpio.tx_pwm(chip,PIN_ESC,50,0)
+            lgpio.tx_pwm(chip,PIN_ESC,50,5)
             time.sleep(2)
-            lgpio.tx_pwm(chip, PIN_ESC, 50, 50)
+            lgpio.tx_pwm(chip, PIN_ESC, 50, 7.5)
             time.sleep(2)
             calibrated = True
         
-        esc_duty = int(round(map_range(msg.linear.x, 0, 1, 0, 100)))
+        esc_duty = int(round(map_range(msg.linear.x, 0, 1, 5, 10)))
         lgpio.tx_pwm(chip, PIN_ESC, 50, esc_duty)
         
         
