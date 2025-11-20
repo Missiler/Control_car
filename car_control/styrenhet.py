@@ -27,6 +27,28 @@ class CmdVelSubscriber(Node):
             10              # QoS
         )
         self.subscription
+        self.calibrate_esc()
+    
+    def calibrate_esc(self):
+        esc_max = 2000
+        esc_min = 1000
+        esc_neutral = 1500
+        
+        duty_max = (esc_max / 20000) * 100
+        duty_min = (esc_min / 20000) * 100
+        duty_mid = (esc_neutral / 20000) * 100
+
+        self.get_logger().info("Calibrating ESC...")
+
+        lgpio.tx_pwm(chip, PIN_ESC, 50, duty_max)
+        time.sleep(2)
+        lgpio.tx_pwm(chip, PIN_ESC, 50, duty_min)
+        time.sleep(2)
+        lgpio.tx_pwm(chip, PIN_ESC, 50, duty_mid)
+        time.sleep(2)
+        
+        self.get_logger().info("ESC calibrated.")
+        
 
     def listener_callback(self, msg: Twist):
         global calibrated
@@ -36,19 +58,6 @@ class CmdVelSubscriber(Node):
         servo_max = 2000
         servo_min = 1000
         period_servo = int(1000000/(f_servo)) #(50hz)
-        
-        esc_max = 2000
-        esc_min = 1000
-        esc_neutral = 1500
-        esc_calib_max = 2000
-        esc_calib_min = 1000
-        
-        duty_max = (esc_calib_max / 20000) * 100   # 2000 us → 10%
-        duty_min = (esc_calib_min / 20000) * 100   # 1000 us → 5%
-        duty_mid = (esc_neutral    / 20000) * 100   # 1500 us → 7.5%
-        
-        f_esc = 50
-        period_esc = int(1000000/f_esc)
         
         #Servo-----------------
         #The angle is given by the pulse width of the period. For our case, it is 50Hz.
@@ -63,21 +72,12 @@ class CmdVelSubscriber(Node):
         self.get_logger().info(f'angle: {servo_duty}')
         #--------------------------------------------------------
         
-        #ESC----------------
-        #Works just like a servo-motor.
         
-        #Has to be calibrated first.
-        if calibrated == False:
-            lgpio.tx_pwm(chip,PIN_ESC,50,duty_max)
-            time.sleep(2)
-            lgpio.tx_pwm(chip,PIN_ESC,50,duty_min)
-            time.sleep(2)
-            lgpio.tx_pwm(chip, PIN_ESC, 50, duty_mid)
-            time.sleep(2)
-            calibrated = True
-        
-        esc_duty = int(round(map_range(msg.linear.x, 0, 1, 5, 10)))
-        lgpio.tx_pwm(chip, PIN_ESC, 50, esc_duty)
+        #ESC--------------
+        lgpio.tx_pwm(chip, PIN_ESC, 50, 10)
+        time.sleep(1)
+        lgpio.tx_pwm(chip, PIN_ESC, 50, 5)
+        time.sleep(1)
         
         
         self.get_logger().info(
